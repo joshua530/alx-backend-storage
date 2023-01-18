@@ -34,19 +34,19 @@ def call_history(method: Callable) -> Callable:
 def replay(method: Callable) -> None:
     """Replays the history of a method call"""
     redis_obj = redis.Redis()
-    key = method.__qualname__
-    inputs = redis_obj.lrange(key, 0, -1)
-    outputs = redis_obj.lrange(key, 0, -1)
+    fn_name = method.__qualname__
+    inputs = redis_obj.lrange("{}:inputs".format(fn_name), 0, -1)
+    outputs = redis_obj.lrange("{}:outputs".format(fn_name), 0, -1)
 
     try:
-        count = redis_obj.get(key).decode("utf-8")
+        count = redis_obj.get(fn_name).decode("utf-8")
     except Exception:
         count = 0
 
-    print("{} was called {} times:".format(key, count))
+    print("{} was called {} times:".format(fn_name, count))
     for key, value in zip(inputs, outputs):
         print("{}(*{}) -> {}".format(
-            key, key.decode("utf-8"), value.decode("utf-8")))
+            fn_name, key.decode("utf-8"), value.decode("utf-8")))
 
 
 class Cache:
@@ -63,11 +63,11 @@ class Cache:
     @count_calls
     def store(self, data: Union[str, int, float, bytes]) -> str:
         """Stores item in redis db"""
-        rand = uuid.uuid4()
+        rand = str(uuid.uuid4())
         self._redis.set(rand, data)
         return rand
 
-    def get(self, key: str, fn: Callable) -> Union[
+    def get(self, key: str, fn: Callable = None) -> Union[
         str, int, float, bytes
     ]:
         """Fetches str, int, float or bytes from redis"""
