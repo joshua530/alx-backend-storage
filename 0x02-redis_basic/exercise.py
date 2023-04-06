@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 Exercise Module
+
+Contains simple cache implementation
 """
 
 from functools import wraps

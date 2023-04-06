@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 Web page caching
+
+Contains simple web page cache example
 """
 
 from datetime import timedelta
